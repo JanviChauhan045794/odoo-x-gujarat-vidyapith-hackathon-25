@@ -2,13 +2,62 @@
 
 {% block content %}
 <div class="flex flex-col p-5">
-    <h1 class="text-3xl">Welcome, {{ user.first_name }}!</h1>
-    <p class="text-md font-mono ">Manage your crops, orders, and earnings here.</p>
-    <div class="grid grid-cols-3 gap-4">
-        <div class="bg-gray-100 p-4 rounded-lg shadow text-center bg-green-50 shadow-green-300 shadow-md">Card 1</div>
-        <div class="bg-gray-100 p-4 rounded-lg shadow text-center bg-green-50 shadow-green-300 shadow-md">Card 2</div>
-        <div class="bg-gray-100 p-4 rounded-lg shadow text-center bg-green-50 shadow-green-300 shadow-md">Card 3</div>
+    <h1 class="text-3xl font-bold text-green-800 mb-4">Welcome, {{ user.full_name }}!</h1>
+    <p class="text-md text-gray-600 mb-6">Manage your farm products and track your business here.</p>
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Add New Product Card -->
+        <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-semibold text-green-800">Add New Product</h3>
+                <i class="fas fa-plus-circle text-3xl text-green-600"></i>
+            </div>
+            <p class="text-gray-600 mb-4">Add a new product to your catalog</p>
+            <a href="{% url 'add_product' %}" class="inline-block bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition">
+                Add Product
+            </a>
+        </div>
+
+        <!-- View Products Card -->
+        <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-semibold text-green-800">Your Products</h3>
+                <i class="fas fa-list text-3xl text-green-600"></i>
+            </div>
+            <p class="text-gray-600 mb-4">View and manage your existing products</p>
+            <a href="{% url 'product_list' %}" class="inline-block bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition">
+                View Products
+            </a>
+        </div>
+
+        <!-- Certificate Status Card -->
+        <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-semibold text-green-800">Certificate Status</h3>
+                <i class="fas fa-certificate text-3xl text-green-600"></i>
+            </div>
+            <p class="text-gray-600 mb-4">Check your organic certification status</p>
+            <a href="#" class="inline-block bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition">
+                View Status
+            </a>
+        </div>
     </div>
-</div>
+
+    <!-- Recent Activity Section -->
+    <div class="mt-8">
+        <h2 class="text-2xl font-semibold text-green-800 mb-4">Recent Activity</h2>
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="space-y-4">
+                <div class="flex items-center text-gray-600">
+                    <i class="fas fa-clock text-green-600 mr-3"></i>
+                    <span>No recent activity to display</span>
+                </div>
+                <div class="flex items-center text-gray-600">
+                    <i class="fas fa-info-circle text-green-600 mr-3"></i>
+                    <span>Start by adding your first product!</span>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

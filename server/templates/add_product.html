@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card border-0 shadow-lg">
+                <div class="card-header bg-success text-white py-3">
+                    <h2 class="card-title text-center mb-0">
+                        <i class="fas fa-leaf me-2"></i>Add Your Farm Product
+                    </h2>
+                </div>
+                <div class="card-body bg-light">
+                    {% if messages %}
+                    <div class="messages mb-4">
+                        {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.product_name.id_for_label }}" class="form-label">
+                                    <i class="fas fa-carrot me-1"></i>Product Name
+                                </label>
+                                {{ form.product_name }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.category.id_for_label }}" class="form-label">
+                                    <i class="fas fa-list me-1"></i>Category
+                                </label>
+                                {{ form.category }}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.description.id_for_label }}" class="form-label">
+                                <i class="fas fa-info-circle me-1"></i>Description
+                            </label>
+                            {{ form.description }}
+                            <small class="text-muted">Tell customers about your product's quality and origin</small>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.price.id_for_label }}" class="form-label">
+                                    <i class="fas fa-rupee-sign me-1"></i>Price (₹)
+                                </label>
+                                {{ form.price }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.stock.id_for_label }}" class="form-label">
+                                    <i class="fas fa-boxes me-1"></i>Available Stock
+                                </label>
+                                {{ form.stock }}
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="{{ form.image.id_for_label }}" class="form-label">
+                                <i class="fas fa-camera me-1"></i>Product Image
+                            </label>
+                            <div class="image-upload-wrapper">
+                                {{ form.image }}
+                                <div id="imagePreview" class="mt-2 d-none">
+                                    <img src="" alt="Preview" class="img-thumbnail" style="max-height: 200px;">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="fas fa-plus-circle me-2"></i>Add Product
+                            </button>
+                            <a href="{% url 'product_list' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Products
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        border-radius: 15px;
+        overflow: hidden;
+    }
+    .form-control, .form-select {
+        border-radius: 8px;
+        border: 2px solid #e0e0e0;
+        padding: 10px 15px;
+    }
+    .form-control:focus, .form-select:focus {
+        border-color: #28a745;
+        box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+    }
+    textarea.form-control {
+        height: 120px;
+    }
+    .btn-success {
+        background-color: #2d8a3e;
+        border: none;
+    }
+    .btn-success:hover {
+        background-color: #1e7e34;
+    }
+    .image-upload-wrapper {
+        border: 2px dashed #ddd;
+        padding: 20px;
+        border-radius: 8px;
+        text-align: center;
+        background-color: #f8f9fa;
+    }
+    .form-label {
+        font-weight: 600;
+        color: #2d3748;
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Image preview
+    const imageInput = document.querySelector('input[type="file"]');
+    const imagePreview = document.getElementById('imagePreview');
+    const previewImg = imagePreview.querySelector('img');
+
+    imageInput.addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewImg.src = e.target.result;
+                imagePreview.classList.remove('d-none');
+            }
+            reader.readAsDataURL(this.files[0]);
+        }
+    });
+});
+</script>
+{% endblock %}

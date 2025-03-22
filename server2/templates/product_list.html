@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row align-items-center mb-4">
+        <div class="col">
+            <h2 class="text-success">
+                <i class="fas fa-store me-2"></i>Farm Fresh Products
+            </h2>
+        </div>
+        {% if user.role == 'Farmer' %}
+        <div class="col text-end">
+            <a href="{% url 'add_product' %}" class="btn btn-success btn-lg">
+                <i class="fas fa-plus-circle me-2"></i>Add New Product
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Filter Section -->
+    <div class="card mb-4 border-0 shadow-sm">
+        <div class="card-body bg-light">
+            <div class="row">
+                <div class="col-md-4 mb-2">
+                    <select class="form-select" id="categoryFilter">
+                        <option value="">All Categories</option>
+                        {% for category in categories %}
+                        <option value="{{ category.id }}">{{ category.category_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4 mb-2">
+                    <input type="text" class="form-control" placeholder="Search products..." id="searchInput">
+                </div>
+                <div class="col-md-4 mb-2">
+                    <select class="form-select" id="sortFilter">
+                        <option value="newest">Newest First</option>
+                        <option value="price_low">Price: Low to High</option>
+                        <option value="price_high">Price: High to Low</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        {% for product in products %}
+        <div class="col">
+            <div class="card h-100 border-0 shadow-sm product-card">
+                <div class="position-relative">
+                    {% if product.image %}
+                    <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.product_name }}" style="height: 200px; object-fit: cover;">
+                    {% else %}
+                    <div class="bg-light text-center py-5">
+                        <i class="fas fa-image text-muted fa-3x"></i>
+                    </div>
+                    {% endif %}
+                    <div class="product-category">
+                        <span class="badge bg-success">
+                            <i class="fas fa-tag me-1"></i>{{ product.category.category_name }}
+                        </span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title text-success">{{ product.product_name }}</h5>
+                    <p class="card-text text-muted">{{ product.description }}</p>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h4 class="text-primary mb-0">₹{{ product.price }}</h4>
+                        <span class="badge bg-light text-dark border">
+                            <i class="fas fa-boxes me-1"></i>{{ product.stock }} units
+                        </span>
+                    </div>
+                    <div class="farmer-info">
+                        <small class="text-muted">
+                            <i class="fas fa-user-circle me-1"></i>Sold by: {{ product.farmer.user.full_name }}
+                        </small>
+                    </div>
+                </div>
+                <div class="card-footer bg-white border-0">
+                    {% if user.is_authenticated and user.role == 'Customer' %}
+                    <button class="btn btn-success w-100">
+                        <i class="fas fa-shopping-cart me-2"></i>Add to Cart
+                    </button>
+                    {% endif %}
+                    {% if user == product.farmer.user %}
+                    <div class="btn-group w-100 mt-2">
+                        <button class="btn btn-outline-primary">
+                            <i class="fas fa-edit me-1"></i>Edit
+                        </button>
+                        <button class="btn btn-outline-danger">
+                            <i class="fas fa-trash me-1"></i>Delete
+                        </button>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info text-center py-5">
+                <i class="fas fa-leaf fa-3x mb-3"></i>
+                <h4>No products available at the moment.</h4>
+                {% if user.role == 'Farmer' %}
+                <p>Start adding your farm products to showcase them to customers!</p>
+                <a href="{% url 'add_product' %}" class="btn btn-success">
+                    <i class="fas fa-plus-circle me-2"></i>Add Your First Product
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+    .product-card {
+        transition: transform 0.2s;
+        border-radius: 15px;
+        overflow: hidden;
+    }
+    .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1) !important;
+    }
+    .product-category {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+    }
+    .card-img-top {
+        border-bottom: 1px solid #eee;
+    }
+    .farmer-info {
+        border-top: 1px solid #eee;
+        padding-top: 10px;
+        margin-top: 10px;
+    }
+    .btn-success {
+        background-color: #2d8a3e;
+        border: none;
+    }
+    .btn-success:hover {
+        background-color: #1e7e34;
+    }
+    .form-select, .form-control {
+        border-radius: 8px;
+        border: 2px solid #e0e0e0;
+        padding: 10px 15px;
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add your filter and search functionality here
+    const searchInput = document.getElementById('searchInput');
+    const categoryFilter = document.getElementById('categoryFilter');
+    const sortFilter = document.getElementById('sortFilter');
+
+    // Example filter function (you'll need to implement the actual filtering)
+    function filterProducts() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const category = categoryFilter.value;
+        const sortBy = sortFilter.value;
+        
+        // Add your filtering logic here
+    }
+
+    searchInput.addEventListener('input', filterProducts);
+    categoryFilter.addEventListener('change', filterProducts);
+    sortFilter.addEventListener('change', filterProducts);
+});
+</script>
+{% endblock %}

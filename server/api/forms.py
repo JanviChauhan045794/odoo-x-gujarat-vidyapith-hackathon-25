@@ -1,5 +1,5 @@
 from django import forms
-from .models import User
+from .models import User, Product, Category
 
 class UserSignupForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput)
@@ -21,3 +21,28 @@ class UserSignupForm(forms.ModelForm):
             self.add_error('confirm_password', "Passwords do not match.")
 
         return cleaned_data
+
+class ProductForm(forms.ModelForm):
+    class Meta:
+        model = Product
+        fields = ['product_name', 'category', 'description', 'price', 'stock', 'image']
+        widgets = {
+            'product_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'category': forms.Select(attrs={'class': 'form-select'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
+            'price': forms.NumberInput(attrs={'class': 'form-control', 'min': '0', 'step': '0.01'}),
+            'stock': forms.NumberInput(attrs={'class': 'form-control', 'min': '0'}),
+            'image': forms.FileInput(attrs={'class': 'form-control'}),
+        }
+
+    def clean_price(self):
+        price = self.cleaned_data.get('price')
+        if price <= 0:
+            raise forms.ValidationError("Price must be greater than zero.")
+        return price
+
+    def clean_stock(self):
+        stock = self.cleaned_data.get('stock')
+        if stock < 0:
+            raise forms.ValidationError("Stock cannot be negative.")
+        return stock
