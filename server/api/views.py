@@ -10,6 +10,7 @@ from .forms import UserForm, FarmerProfileForm, CertificationRequestForm, Catego
 def add_user(request):
     if request.method == 'POST':
         form = UserForm(request.POST)
+        print("Form: ", form)
         if form.is_valid():
             form.save()
             return redirect('add_user')  # Redirect to the same page or another page

@@ -30,10 +30,8 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <NavbarComp />
-        <div className="py-10">
-          <Toaster />
-          {children}
-        </div>
+        <Toaster />
+        {children}
       </body>
     </html>
   );

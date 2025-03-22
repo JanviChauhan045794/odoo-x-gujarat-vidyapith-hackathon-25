@@ -13,7 +13,7 @@ export const pageLinks = {
     // Authentication Links
     auth: {
         login: '/login',
-        signup: '/signup',
+        signup: '/sign-up',
     },
 
     // User-Related Links

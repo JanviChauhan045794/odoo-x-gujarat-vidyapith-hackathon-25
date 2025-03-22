@@ -1,86 +1,42 @@
 "use client"
-import {
-    useState
-} from "react"
-import {
-    toast
-} from "sonner"
-import {
-    useForm
-} from "react-hook-form"
-import {
-    zodResolver
-} from "@hookform/resolvers/zod"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
-import {
-    Button
-} from "@/components/ui/button"
-import {
-    Form,
-    FormControl,
-    FormDescription,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-} from "@/components/ui/form"
-import {
-    Input
-} from "@/components/ui/input"
-import {
-    PasswordInput
-} from "@/components/ui/password-input"
-import {
-    PhoneInput
-} from "@/components/ui/phone-input";
-import LocationSelector from "@/components/ui/location-input"
-
-const formSchema = z.object({
-    name: z.string().min(1).min(6).max(12),
-    email: z.string(),
-    password: z.string(),
-    phonenumber: z.string(),
-    country: z.tuple([z.string(), z.string().optional()])
-});
+import { Button } from "@/components/ui/button"
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, } from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import { PasswordInput } from "@/components/ui/password-input"
+import { PhoneInput } from "@/components/ui/phone-input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { UtilityHandler } from "@/lib/form-handler"
 
 export default function MyForm() {
 
-    const [countryName, setCountryName] = useState<string>('')
-    const [stateName, setStateName] = useState<string>('')
+    const formSchema = z.object({
+        full_name: z.string().min(1).min(6).max(30),
+        email: z.string(),
+        password: z.string(),
+        phone_number: z.string(),
+        role: z.string()
+    });
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
-
     })
-
-    function onSubmit(values: z.infer<typeof formSchema>) {
-        try {
-            console.log(values);
-            toast(
-                <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-                    <code className="text-white">{JSON.stringify(values, null, 2)}</code>
-                </pre>
-            );
-        } catch (error) {
-            console.error("Form submission error", error);
-            toast.error("Failed to submit the form. Please try again.");
-        }
-    }
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 max-w-3xl mx-auto py-10">
+            <form onSubmit={form.handleSubmit((values) => UtilityHandler.onSubmitPost('/add_user', values))} className="space-y-8 max-w-3xl mx-auto py-20">
 
                 <FormField
                     control={form.control}
-                    name="name"
+                    name="full_name"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Enter your name</FormLabel>
+                            <FormLabel>Enter your full name</FormLabel>
                             <FormControl>
                                 <Input
                                     placeholder="shadcn"
-
                                     type="text"
                                     {...field} />
                             </FormControl>
@@ -95,7 +51,7 @@ export default function MyForm() {
                     name="email"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Enter the mail-id</FormLabel>
+                            <FormLabel>Email</FormLabel>
                             <FormControl>
                                 <Input
                                     placeholder="shadcn"
@@ -103,7 +59,7 @@ export default function MyForm() {
                                     type="email"
                                     {...field} />
                             </FormControl>
-                            <FormDescription>This is your public display name.</FormDescription>
+                            <FormDescription>This is your public email</FormDescription>
                             <FormMessage />
                         </FormItem>
                     )}
@@ -118,7 +74,7 @@ export default function MyForm() {
                             <FormControl>
                                 <PasswordInput placeholder="Placeholder" {...field} />
                             </FormControl>
-                            <FormDescription>Enter your Re-password.</FormDescription>
+                            <FormDescription>Enter your password.</FormDescription>
                             <FormMessage />
                         </FormItem>
                     )}
@@ -134,7 +90,7 @@ export default function MyForm() {
                             <FormControl>
                                 <PasswordInput placeholder="Placeholder" {...field} />
                             </FormControl>
-                            <FormDescription>Enter your Re-password.</FormDescription>
+                            <FormDescription>Re-enter your password</FormDescription>
                             <FormMessage />
                         </FormItem>
                     )}
@@ -143,7 +99,7 @@ export default function MyForm() {
 
                 <FormField
                     control={form.control}
-                    name="phonenumber"
+                    name="phone_number"
                     render={({ field }) => (
                         <FormItem className="flex flex-col items-start">
                             <FormLabel>Phone number</FormLabel>
@@ -163,23 +119,24 @@ export default function MyForm() {
 
                 <FormField
                     control={form.control}
-                    name="country"
+                    name="role"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Select Your Country</FormLabel>
-                            <FormControl>
-                                <LocationSelector
-                                    onCountryChange={(country) => {
-                                        setCountryName(country?.name || '')
-                                        form.setValue(field.name, [country?.name || '', stateName || ''])
-                                    }}
-                                    onStateChange={(state) => {
-                                        setStateName(state?.name || '')
-                                        form.setValue(field.name, [form.getValues(field.name)[0] || '', state?.name || ''])
-                                    }}
-                                />
-                            </FormControl>
-                            <FormDescription>If your country has states, it will be appear after selecting country</FormDescription>
+                            <FormLabel>Role</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select a verified email to display" />
+                                    </SelectTrigger>
+                                </FormControl>
+                                <SelectContent className="bg-white text-black">
+                                    <SelectItem value="Farmer">Farmer</SelectItem>
+                                    <SelectItem value="Customer">Customer</SelectItem>
+                                    <SelectItem value="Admin">Admin</SelectItem>
+                                    <SelectItem value="Verifier">Verifier</SelectItem>
+                                </SelectContent>
+                            </Select>
+                            <FormDescription>You can select your role here</FormDescription>
                             <FormMessage />
                         </FormItem>
                     )}
