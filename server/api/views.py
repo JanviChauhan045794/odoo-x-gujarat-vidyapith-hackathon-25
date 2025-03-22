@@ -26,5 +26,8 @@ def signup_view(request):
 def dashboard_view(request):
     return render(request, 'dashboard.html')
 
+def index_view(request):
+    return render(request, 'index.html')
+
 def logout_success_view(request):
     return render(request, 'logout_success.html')
