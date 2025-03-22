@@ -1,0 +1,21 @@
+{% extends 'farmer/farmer_base.html' %}
+
+{% block content %}
+    <h1>Welcome, {{ user.first_name }}!</h1>
+    <p>Manage your crops, orders, and earnings here.</p>
+
+    <div class="dashboard-cards">
+        <div class="card">
+            <h2>{{ total_crops }}</h2>
+            <p>Total Crops</p>
+        </div>
+        <div class="card">
+            <h2>{{ total_orders }}</h2>
+            <p>Orders Received</p>
+        </div>
+        <div class="card">
+            <h2>${{ total_earnings }}</h2>
+            <p>Total Earnings</p>
+        </div>
+    </div>
+{% endblock %}
