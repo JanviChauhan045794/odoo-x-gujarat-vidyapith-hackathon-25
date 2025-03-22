@@ -1,21 +1,14 @@
 {% extends 'farmer/farmer_base.html' %}
 
 {% block content %}
-    <h1>Welcome, {{ user.first_name }}!</h1>
-    <p>Manage your crops, orders, and earnings here.</p>
-
-    <div class="dashboard-cards">
-        <div class="card">
-            <h2>{{ total_crops }}</h2>
-            <p>Total Crops</p>
-        </div>
-        <div class="card">
-            <h2>{{ total_orders }}</h2>
-            <p>Orders Received</p>
-        </div>
-        <div class="card">
-            <h2>${{ total_earnings }}</h2>
-            <p>Total Earnings</p>
-        </div>
+<div class="flex flex-col p-5">
+    <h1 class="text-3xl">Welcome, {{ user.first_name }}!</h1>
+    <p class="text-md font-mono ">Manage your crops, orders, and earnings here.</p>
+    <div class="grid grid-cols-3 gap-4">
+        <div class="bg-gray-100 p-4 rounded-lg shadow text-center bg-green-50 shadow-green-300 shadow-md">Card 1</div>
+        <div class="bg-gray-100 p-4 rounded-lg shadow text-center bg-green-50 shadow-green-300 shadow-md">Card 2</div>
+        <div class="bg-gray-100 p-4 rounded-lg shadow text-center bg-green-50 shadow-green-300 shadow-md">Card 3</div>
     </div>
+</div>
+</div>
 {% endblock %}

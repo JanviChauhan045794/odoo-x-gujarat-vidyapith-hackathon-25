@@ -1,14 +1,38 @@
-<div class="sidebar">
-    <center>
-        {% load static %}
-        <img src="{% static 'user.png' %}" alt="Default Profile" class="profile-pic">
-        <h3>{{ user.full_name }}</h3>
-    </center>
-    <a href="#"><i class="fa fa-home"></i> Dashboard</a>
-    <a href="#"><i class="fa fa-user"></i> Profile</a>
-    <a href="#"><i class="fa fa-certificate"></i> Certificate Request</a>
-    <a href="#"><i class="fa fa-seedling"></i> Add/Edit Products</a>
-    <a href="#"><i class="fa fa-shopping-cart"></i> Order Management</a>
-    <a href="#"><i class="fa fa-chart-line"></i> Sales Analytics</a>
-    <a href="{% url 'logout' %}"><i class="fa fa-sign-out-alt"></i> Logout</a>
-</div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="flex m-0 font-sans">
+    <div class="w-64 bg-green-900 text-white h-screen p-4 fixed">
+        <center>
+            {% load static %}
+            <img src="{% static 'user.png' %}" alt="Default Profile" class="w-24 h-24 rounded-full border-2 border-white mb-3">
+            <h3 class="text-lg font-semibold">{{ user.full_name }}</h3>
+        </center>
+        <nav class="mt-4 space-y-2">
+            <a href="#" class="block px-4 py-2 rounded-md hover:bg-green-700 transition flex items-center">
+                <i class="fa fa-home mr-2"></i> Dashboard
+            </a>
+            <a href="#" class="block px-4 py-2 rounded-md hover:bg-green-700 transition flex items-center">
+                <i class="fa fa-user mr-2"></i> Profile
+            </a>
+            <a href="#" class="block px-4 py-2 rounded-md hover:bg-green-700 transition flex items-center">
+                <i class="fa fa-certificate mr-2"></i> Certificate Request
+            </a>
+            <a href="#" class="block px-4 py-2 rounded-md hover:bg-green-700 transition flex items-center">
+                <i class="fa fa-seedling mr-2"></i> Add/Edit Products
+            </a>
+            <a href="#" class="block px-4 py-2 rounded-md hover:bg-green-700 transition flex items-center">
+                <i class="fa fa-shopping-cart mr-2"></i> Order Management
+            </a>
+            <a href="#" class="block px-4 py-2 rounded-md hover:bg-green-700 transition flex items-center">
+                <i class="fa fa-chart-line mr-2"></i> Sales Analytics
+            </a>
+            <a href="{% url 'logout' %}" class="block px-4 py-2 rounded-md hover:bg-red-600 transition flex items-center">
+                <i class="fa fa-sign-out-alt mr-2"></i> Logout
+            </a>
+        </nav>
+    </div>
+</body>
+</html>
