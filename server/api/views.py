@@ -9,6 +9,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from .forms import UserSignupForm, ProductForm, FarmerProfileForm, CustomerProfileForm
 from .models import FarmerProfile, CertificationRequest, User, Product, Category, CustomerProfile
 from .serializers import ProductSerializer, CategorySerializer
+from django.utils import timezone
 
 
 def signup_view(request):
@@ -79,8 +80,30 @@ def farmer_dashboard(request):
 def admin_dashboard(request):
     return render(request, 'admin/admin_dashboard.html')
 
+@login_required
 def verifier_dashboard(request):
-    return render(request, 'verifier/verifier_dashboard.html')
+    if request.user.role != 'Verifier':
+        messages.error(request, 'Only verifiers can access this dashboard.')
+        return redirect('home')
+    
+    # Get filter parameters
+    status = request.GET.get('status', '')
+    sort = request.GET.get('sort', '-submitted_at')
+    
+    # Query certification requests
+    certification_requests = CertificationRequest.objects.all()
+    
+    # Apply filters
+    if status:
+        certification_requests = certification_requests.filter(status=status)
+    
+    # Apply sorting
+    certification_requests = certification_requests.order_by(sort)
+    
+    context = {
+        'certification_requests': certification_requests,
+    }
+    return render(request, 'verifier/certification_requests.html', context)
 
 def index_view(request):
     return render(request, 'index.html')
@@ -331,6 +354,37 @@ def certification_request(request):
         'farmer_profile': farmer_profile,
     }
     return render(request, 'farmer/certification_request.html', context)
+
+@login_required
+def update_certification_status(request, request_id):
+    if request.user.role != 'Verifier':
+        messages.error(request, 'Only verifiers can update certification status.')
+        return redirect('home')
+    
+    if request.method != 'POST':
+        return redirect('verifier_dashboard')
+    
+    try:
+        cert_request = CertificationRequest.objects.get(id=request_id)
+        action = request.POST.get('action')
+        inspection_date = request.POST.get('inspection_date')
+        
+        if action == 'approve':
+            cert_request.status = 'approved'
+            cert_request.inspection_date = inspection_date
+            cert_request.approval_date = timezone.now().date()
+            messages.success(request, 'Certification request approved successfully.')
+        elif action == 'reject':
+            cert_request.status = 'rejected'
+            cert_request.inspection_date = inspection_date
+            messages.success(request, 'Certification request rejected successfully.')
+        
+        cert_request.save()
+        
+    except CertificationRequest.DoesNotExist:
+        messages.error(request, 'Certification request not found.')
+    
+    return redirect('verifier_dashboard')
 
 def logout_view(request):
     logout(request)

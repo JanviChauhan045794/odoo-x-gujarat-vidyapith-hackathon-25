@@ -30,6 +30,9 @@ urlpatterns = [
     path('customer/profile/edit/', views.edit_customer_profile, name='edit_customer_profile'),
     path('farmer/certification/', views.certification_request, name='certification_request'),
     
+    # Verifier URLs
+    path('certification/update/<int:request_id>/', views.update_certification_status, name='update_certification_status'),
+    
     # API URLs
     path('api/', include(router.urls)),
 ]
