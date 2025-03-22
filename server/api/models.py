@@ -3,6 +3,7 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Permis
 import qrcode
 from io import BytesIO
 from django.core.files import File
+from django.utils import timezone
 
 # User Manager
 class UserManager(BaseUserManager):
@@ -61,21 +62,20 @@ class FarmerProfile(models.Model):
 
 # Certification Request
 class CertificationRequest(models.Model):
-    STATUS_CHOICES = [
-        ('Pending', 'Pending'),
-        ('Approved', 'Approved'),
-        ('Needs Correction', 'Needs Correction'),
-    ]
-
     farmer = models.ForeignKey(FarmerProfile, on_delete=models.CASCADE)
-    submitted_documents = models.FileField(upload_to='certifications/')
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
+    submitted_documents = models.FileField(upload_to='certification_documents/')
+    status = models.CharField(max_length=20, choices=[
+        ('pending', 'Pending'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected')
+    ], default='pending')
+    submitted_at = models.DateTimeField(default=timezone.now)
     inspection_date = models.DateField(null=True, blank=True)
     approval_date = models.DateField(null=True, blank=True)
     rejection_reason = models.TextField(blank=True, null=True)
 
     def __str__(self):
-        return f"{self.farmer.user.full_name} - {self.status}"
+        return f"Certification Request by {self.farmer.user.full_name}"
 
 # Category Model
 class Category(models.Model):

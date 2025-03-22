@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth import login
+from django.contrib.auth import login, logout
 from rest_framework import viewsets, permissions, filters, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
@@ -301,5 +301,40 @@ def edit_customer_profile(request):
         'customer_profile': customer_profile,
     }
     return render(request, 'customer/edit_profile.html', context)
+
+@login_required
+def certification_request(request):
+    if request.user.role != 'Farmer':
+        messages.error(request, 'Only farmers can request certification.')
+        return redirect('home')
+    
+    try:
+        farmer_profile = FarmerProfile.objects.get(user=request.user)
+        certification_requests = CertificationRequest.objects.filter(farmer=farmer_profile).order_by('-submitted_at')
+    except FarmerProfile.DoesNotExist:
+        messages.error(request, 'Please complete your farmer profile first.')
+        return redirect('farmer_dashboard')
+    
+    if request.method == 'POST':
+        if 'submitted_documents' in request.FILES:
+            CertificationRequest.objects.create(
+                farmer=farmer_profile,
+                submitted_documents=request.FILES['submitted_documents']
+            )
+            messages.success(request, 'Certification request submitted successfully!')
+            return redirect('certification_request')
+        else:
+            messages.error(request, 'Please upload your documents.')
+    
+    context = {
+        'certification_requests': certification_requests,
+        'farmer_profile': farmer_profile,
+    }
+    return render(request, 'farmer/certification_request.html', context)
+
+def logout_view(request):
+    logout(request)
+    messages.success(request, 'You have been logged out successfully.')
+    return redirect('login')
 
 

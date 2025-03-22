@@ -17,7 +17,7 @@ urlpatterns = [
     path('dashboard/verifier/', views.verifier_dashboard, name='verifier_dashboard'),
     path('login/', auth_views.LoginView.as_view(template_name='login.html'), name='login'),
     path('', views.index_view, name='home'),
-    path('logout/', views.index_view, name='logout'),
+    path('logout/', views.logout_view, name='logout'),
     
     # Product-related URLs
     path('products/', views.product_list, name='product_list'),
@@ -28,6 +28,7 @@ urlpatterns = [
     # Farmer Profile URLs
     path('farmer/profile/edit/', views.edit_farmer_profile, name='edit_farmer_profile'),
     path('customer/profile/edit/', views.edit_customer_profile, name='edit_customer_profile'),
+    path('farmer/certification/', views.certification_request, name='certification_request'),
     
     # API URLs
     path('api/', include(router.urls)),
