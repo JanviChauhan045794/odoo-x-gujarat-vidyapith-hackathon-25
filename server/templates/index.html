@@ -1,29 +1,141 @@
 {% extends 'base.html' %}
 {% block content %}
 
+<!-- Carousel -->
+
+{% load static %}
+
+<div id="default-carousel" class="relative w-full" data-carousel="slide">
+    <!-- Carousel wrapper -->
+    <div class="relative h-56 overflow-hidden rounded-lg md:h-96">
+        <!-- Item 2 -->
+        <div class="hidden duration-700 ease-in-out" data-carousel-item>
+            <img src="{% static '/farmer/farmer-2.jpg' %}"
+                class="absolute block w-full -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2" alt="...">
+        </div>
+
+        <!-- Item 1 -->
+        <div class="hidden duration-700 ease-in-out" data-carousel-item>
+            <img src="{% static '/farmer/farmer-1.jpg' %}"
+                class="absolute block w-full -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2" alt="...">
+        </div>
+        <!-- Item 3 -->
+        <div class="hidden duration-700 ease-in-out" data-carousel-item>
+            <img src="{% static '/farmer/farmer-3.jpg' %}"
+                class="absolute block w-full -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2" alt="...">
+        </div>
+        <!-- Item 4 -->
+        <div class="hidden duration-700 ease-in-out" data-carousel-item>
+            <img src="{% static '/farmer/farmer-4.jpg' %}"
+                class="absolute block w-full -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2" alt="...">
+        </div>
+        <!-- Item 5 -->
+        <div class="hidden duration-700 ease-in-out" data-carousel-item>
+            <img src="{% static '/farmer/farmer-5.jpg' %}"
+                class="absolute block w-full -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2" alt="...">
+        </div>
+    </div>
+    <!-- Slider indicators -->
+    <div class="absolute z-30 flex -translate-x-1/2 bottom-5 left-1/2 space-x-3 rtl:space-x-reverse">
+        <button type="button" class="w-3 h-3 rounded-full" aria-current="true" aria-label="Slide 1"
+            data-carousel-slide-to="0"></button>
+        <button type="button" class="w-3 h-3 rounded-full" aria-current="false" aria-label="Slide 2"
+            data-carousel-slide-to="1"></button>
+        <button type="button" class="w-3 h-3 rounded-full" aria-current="false" aria-label="Slide 3"
+            data-carousel-slide-to="2"></button>
+        <button type="button" class="w-3 h-3 rounded-full" aria-current="false" aria-label="Slide 4"
+            data-carousel-slide-to="3"></button>
+        <button type="button" class="w-3 h-3 rounded-full" aria-current="false" aria-label="Slide 5"
+            data-carousel-slide-to="4"></button>
+    </div>
+    <!-- Slider controls -->
+    <button type="button"
+        class="absolute top-0 start-0 z-30 flex items-center justify-center h-full px-4 cursor-pointer group focus:outline-none"
+        data-carousel-prev>
+        <span
+            class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-white/30 dark:bg-gray-800/30 group-hover:bg-white/50 dark:group-hover:bg-gray-800/60 group-focus:ring-4 group-focus:ring-white dark:group-focus:ring-gray-800/70 group-focus:outline-none">
+            <svg class="w-4 h-4 text-white dark:text-gray-800 rtl:rotate-180" aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M5 1 1 5l4 4" />
+            </svg>
+            <span class="sr-only">Previous</span>
+        </span>
+    </button>
+    <button type="button"
+        class="absolute top-0 end-0 z-30 flex items-center justify-center h-full px-4 cursor-pointer group focus:outline-none"
+        data-carousel-next>
+        <span
+            class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-white/30 dark:bg-gray-800/30 group-hover:bg-white/50 dark:group-hover:bg-gray-800/60 group-focus:ring-4 group-focus:ring-white dark:group-focus:ring-gray-800/70 group-focus:outline-none">
+            <svg class="w-4 h-4 text-white dark:text-gray-800 rtl:rotate-180" aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="m1 9 4-4-4-4" />
+            </svg>
+            <span class="sr-only">Next</span>
+        </span>
+    </button>
+</div>
+
+
 <!-- CTA  -->
 
 <div class="w-full max-w-4xl my-4 mx-auto p-2">
 
-    <div class="border border-indigo-500 p-4 md:p-6 rounded-lg text-center">
-        <h2 class="text-2xl md:text-3xl font-bold mb-4">We need your help!</h2>
+    <div class="border border-green-600 p-4 md:p-6 rounded-lg text-center">
+        <h2 class="text-2xl md:text-3xl font-bold mb-4 text-green-900">Connect with us!</h2>
 
         <p class="text-lg mb-4 text-gray-700">
-            We're developing a website for <strong>study materials for students</strong>.
-            <br>
-            We would love to hear your answers to some of the questions.
+            JaivikSetu bridges the gap between organic farmers and conscious consumers, ensuring fair trade, purity, and
+            trust. <strong>Scan QR codes to trace farming methods</strong>, certifications, and authenticity—bringing
+            farm-fresh,
+            chemical-free produce straight to you!
         </p>
 
-        <a href="#"
-            class="font-bold inline-block bg-indigo-100 text-indigo-700 py-2 px-4 rounded-lg hover:bg-indigo-100 transition duration-300 ease-in-out">
-            Take Survey
+        <a href="{% url 'login' %}"
+            class="font-bold inline-block bg-green-100 text-green-700 py-2 px-4 border-0 border-green-400 rounded-lg hover:bg-green-100 transition duration-300 ease-in-out">
+            Login
         </a>
 
         <p class="text-sm py-2 text-gray-500">
-            You will be rewarded for completing survey
+            Join us in the exiting journey of organic farming and sustainable living!
         </p>
     </div>
+</div>
 
+<!-- Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4 text-green-900">
+    <div class="hover:bg-green-100 p-4 rounded-lg ">
+        <div class="font-bold">Direct Farmer-to-Consumer Connection</div>
+        <p class="text-green-700 text-sm">Buy directly from verified organic farmers,ensuring fresh, chemical-free produce
+            without
+            middlemen.</p>
+    </div>
+    <div class="hover:bg-green-100 p-4 rounded-lg ">
+        <div  class="font-bold">QR Code-Based Product Traceability</div>
+        <p class="text-green-700 text-sm">ScanQR codes to verify farm details, organic certification, and farming methods before
+            purchasing.</p>
+    </div>
+    <div class="hover:bg-green-100 p-4 rounded-lg ">
+        <div  class="font-bold">Fair & Transparent Pricing</div>
+        <p class="text-green-700 text-sm">Farmers set their own prices,ensuring fair earnings while consumers get affordable
+            organic food.</p>
+    </div>
+    <div class="hover:bg-green-100 p-4 rounded-lg ">
+        <div  class="font-bold">Smart Delivery System</div>
+        <p class="text-green-700 text-sm">Instant deliveries for nearby farms via Blinkit, Dunzo &nation wide shipping viaDHL,
+            Delhivery.</p>
+    </div>
+    <div class="hover:bg-green-100 p-4 rounded-lg ">
+        <div  class="font-bold">Certified Organic Marketplace</div>
+        <p class="text-green-700 text-sm">Only genuine, certified organic farmers can list their products,ensuring authenticity and
+            trust.</p>
+    </div>
+    <div class="hover:bg-green-100 p-4 rounded-lg ">
+        <div  class="font-bold">Secure Payments & Easy Transactions</div>
+        <p class="text-sm text-green-700">Multiple payment options(UPI, Bank Transfer, Wallets, COD)with real-time order
+            tracking.</p>
+    </div>
 </div>
 
 {% endblock %}
