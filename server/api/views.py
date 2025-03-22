@@ -50,3 +50,4 @@ def verifier_dashboard(request):
 def index_view(request):
     return render(request, 'index.html')
 
+

@@ -1,5 +1,21 @@
-{% extends "dashboard.html" %}
+{% extends 'customer/customer_base.html' %}
+
 {% block content %}
-<h2>Welcome, Customer!</h2>
-<p>This is your dashboard where you can browse and purchase products.</p>
+    <h1>Welcome, {{ user.first_name }}!</h1>
+    <p>Manage your orders, wishlist, and account here.</p>
+
+    <div class="dashboard-cards">
+        <div class="card">
+            <h2>{{ total_orders }}</h2>
+            <p>Orders Placed</p>
+        </div>
+        <div class="card">
+            <h2>{{ wishlist_items }}</h2>
+            <p>Wishlist Items</p>
+        </div>
+        <div class="card">
+            <h2>${{ total_spent }}</h2>
+            <p>Total Spent</p>
+        </div>
+    </div>
 {% endblock %}

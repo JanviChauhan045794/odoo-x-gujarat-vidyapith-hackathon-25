@@ -1,0 +1,16 @@
+<div class="sidebar">
+    <center>
+        {% if customer_profile.photo %}
+            <img src="{{ customer_profile.photo.url }}" alt="Profile Photo" class="profile-pic">
+        {% else %}
+            <img src="/media/profile_photos/default.jpg" alt="Default Profile" class="profile-pic">
+        {% endif %}
+        <h3>{{ user.full_name }}</h3>
+    </center>
+    <a href="#"><i class="fa fa-home"></i> Dashboard</a>
+    <a href="#"><i class="fa fa-user"></i> Profile</a>
+    <a href="#"><i class="fa fa-shopping-cart"></i> My Orders</a>
+    <a href="#"><i class="fa fa-heart"></i> Wishlist</a>
+    <a href="#"><i class="fa fa-credit-card"></i> Payment History</a>
+    <a href="#"><i class="fa fa-cog"></i> Settings</a>
+</div>
