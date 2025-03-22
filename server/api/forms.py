@@ -1,58 +1,23 @@
-# /server/api/forms.py
 from django import forms
-from .models import User, FarmerProfile, CertificationRequest, Category, Product, Order, Payment, Review, FAQ, ContactForm, Blog
+from .models import User
 
-class UserForm(forms.ModelForm):
+class UserSignupForm(forms.ModelForm):
+    password = forms.CharField(widget=forms.PasswordInput)
+    confirm_password = forms.CharField(widget=forms.PasswordInput)
+    
     class Meta:
         model = User
-        fields = ['full_name', 'email', 'phone_number', 'password', 'role']
+        fields = ['full_name', 'email', 'phone_number', 'role', 'password']
+        widgets = {
+            'role': forms.Select(choices=User.ROLE_CHOICES),
+        }
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        password = cleaned_data.get("password")
+        confirm_password = cleaned_data.get("confirm_password")
 
-class FarmerProfileForm(forms.ModelForm):
-    class Meta:
-        model = FarmerProfile
-        fields = ['user', 'address', 'city', 'state', 'pincode']
+        if password != confirm_password:
+            self.add_error('confirm_password', "Passwords do not match.")
 
-class CertificationRequestForm(forms.ModelForm):
-    class Meta:
-        model = CertificationRequest
-        fields = ['farmer', 'submitted_documents', 'status', 'inspection_date', 'approval_date', 'rejection_reason']
-
-class CategoryForm(forms.ModelForm):
-    class Meta:
-        model = Category
-        fields = ['category_name', 'description']
-
-class ProductForm(forms.ModelForm):
-    class Meta:
-        model = Product
-        fields = ['farmer', 'category', 'product_name', 'description', 'price', 'stock', 'image']
-
-class OrderForm(forms.ModelForm):
-    class Meta:
-        model = Order
-        fields = ['customer', 'total_price', 'order_status', 'payment_status']
-
-class PaymentForm(forms.ModelForm):
-    class Meta:
-        model = Payment
-        fields = ['order', 'payment_method', 'transaction_id', 'payment_status']
-
-class ReviewForm(forms.ModelForm):
-    class Meta:
-        model = Review
-        fields = ['customer', 'product', 'rating', 'comment']
-
-class FAQForm(forms.ModelForm):
-    class Meta:
-        model = FAQ
-        fields = ['question', 'answer']
-
-class ContactFormForm(forms.ModelForm):
-    class Meta:
-        model = ContactForm
-        fields = ['name', 'email', 'message', 'status']
-
-class BlogForm(forms.ModelForm):
-    class Meta:
-        model = Blog
-        fields = ['title', 'content', 'author']
+        return cleaned_data
