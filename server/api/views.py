@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login
@@ -6,8 +6,8 @@ from rest_framework import viewsets, permissions, filters, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from django_filters.rest_framework import DjangoFilterBackend
-from .forms import UserSignupForm, ProductForm
-from .models import FarmerProfile, CertificationRequest, User, Product, Category
+from .forms import UserSignupForm, ProductForm, FarmerProfileForm, CustomerProfileForm
+from .models import FarmerProfile, CertificationRequest, User, Product, Category, CustomerProfile
 from .serializers import ProductSerializer, CategorySerializer
 
 
@@ -41,11 +41,40 @@ def dashboard_view(request):
         messages.error(request, "Invalid user role.")
         return redirect('home')  # Redirect to home if the role is invalid
 
+@login_required
 def customer_dashboard(request):
-    return render(request, 'customer/customer_dashboard.html')
+    if request.user.role != 'Customer':
+        messages.error(request, 'Only customers can access this dashboard.')
+        return redirect('home')
+    
+    try:
+        customer_profile = CustomerProfile.objects.get(user=request.user)
+    except CustomerProfile.DoesNotExist:
+        customer_profile = None
+    
+    context = {
+        'customer_profile': customer_profile,
+    }
+    return render(request, 'customer/customer_dashboard.html', context)
 
+@login_required
 def farmer_dashboard(request):
-    return render(request, 'farmer/farmer_dashboard.html')
+    if request.user.role != 'Farmer':
+        messages.error(request, 'Only farmers can access this dashboard.')
+        return redirect('home')
+    
+    try:
+        farmer_profile = FarmerProfile.objects.get(user=request.user)
+        recent_products = Product.objects.filter(farmer=farmer_profile).order_by('-created_at')[:5]
+    except FarmerProfile.DoesNotExist:
+        farmer_profile = None
+        recent_products = []
+    
+    context = {
+        'farmer_profile': farmer_profile,
+        'recent_products': recent_products,
+    }
+    return render(request, 'farmer/farmer_dashboard.html', context)
 
 def admin_dashboard(request):
     return render(request, 'admin/admin_dashboard.html')
@@ -66,14 +95,8 @@ def add_product(request):
     try:
         farmer_profile = FarmerProfile.objects.get(user=request.user)
     except FarmerProfile.DoesNotExist:
-        # Create farmer profile if it doesn't exist
-        farmer_profile = FarmerProfile.objects.create(
-            user=request.user,
-            address='',
-            city='',
-            state='',
-            pincode=''
-        )
+        messages.error(request, 'Please complete your farmer profile before adding products.')
+        return redirect('farmer_dashboard')
 
     if request.method == "POST":
         form = ProductForm(request.POST, request.FILES)
@@ -107,6 +130,66 @@ def add_product(request):
         'categories': categories,  # Add categories to context
     }
     return render(request, 'add_product.html', context)
+
+@login_required
+def edit_product(request, product_id):
+    # Check if user is a farmer
+    if request.user.role != 'Farmer':
+        messages.error(request, 'Only farmers can edit products.')
+        return redirect('product_list')
+
+    try:
+        farmer_profile = FarmerProfile.objects.get(user=request.user)
+        product = get_object_or_404(Product, id=product_id, farmer=farmer_profile)
+    except (FarmerProfile.DoesNotExist, Product.DoesNotExist):
+        messages.error(request, 'Product not found or you do not have permission to edit it.')
+        return redirect('product_list')
+
+    if request.method == "POST":
+        form = ProductForm(request.POST, request.FILES, instance=product)
+        if form.is_valid():
+            try:
+                product = form.save(commit=False)
+                product.farmer = farmer_profile
+                
+                # Handle image upload
+                if 'image' in request.FILES:
+                    product.image = request.FILES['image']
+                
+                product.save()
+                messages.success(request, 'Product updated successfully!')
+                return redirect('product_list')
+            except Exception as e:
+                messages.error(request, f'Error updating product: {str(e)}')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = ProductForm(instance=product)
+    
+    context = {
+        'form': form,
+        'product': product,
+        'farmer': farmer_profile,
+        'categories': Category.objects.all(),
+    }
+    return render(request, 'edit_product.html', context)
+
+@login_required
+def delete_product(request, product_id):
+    # Check if user is a farmer
+    if request.user.role != 'Farmer':
+        messages.error(request, 'Only farmers can delete products.')
+        return redirect('product_list')
+
+    try:
+        farmer_profile = FarmerProfile.objects.get(user=request.user)
+        product = get_object_or_404(Product, id=product_id, farmer=farmer_profile)
+        product.delete()
+        messages.success(request, 'Product deleted successfully!')
+    except (FarmerProfile.DoesNotExist, Product.DoesNotExist):
+        messages.error(request, 'Product not found or you do not have permission to delete it.')
+    
+    return redirect('product_list')
 
 # Product List View
 def product_list(request):
@@ -158,5 +241,65 @@ class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = [permissions.AllowAny]
+
+@login_required
+def edit_farmer_profile(request):
+    if request.user.role != 'Farmer':
+        messages.error(request, 'Only farmers can edit their profile.')
+        return redirect('home')
+    
+    try:
+        farmer_profile = FarmerProfile.objects.get(user=request.user)
+    except FarmerProfile.DoesNotExist:
+        farmer_profile = None
+    
+    if request.method == 'POST':
+        form = FarmerProfileForm(request.POST, instance=farmer_profile)
+        if form.is_valid():
+            profile = form.save(commit=False)
+            profile.user = request.user
+            profile.save()
+            messages.success(request, 'Profile updated successfully!')
+            return redirect('farmer_dashboard')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = FarmerProfileForm(instance=farmer_profile)
+    
+    context = {
+        'form': form,
+        'farmer_profile': farmer_profile,
+    }
+    return render(request, 'farmer/edit_profile.html', context)
+
+@login_required
+def edit_customer_profile(request):
+    if request.user.role != 'Customer':
+        messages.error(request, 'Only customers can edit their profile.')
+        return redirect('home')
+    
+    try:
+        customer_profile = CustomerProfile.objects.get(user=request.user)
+    except CustomerProfile.DoesNotExist:
+        customer_profile = None
+    
+    if request.method == 'POST':
+        form = CustomerProfileForm(request.POST, request.FILES, instance=customer_profile)
+        if form.is_valid():
+            profile = form.save(commit=False)
+            profile.user = request.user
+            profile.save()
+            messages.success(request, 'Profile updated successfully!')
+            return redirect('customer_dashboard')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = CustomerProfileForm(instance=customer_profile)
+    
+    context = {
+        'form': form,
+        'customer_profile': customer_profile,
+    }
+    return render(request, 'customer/edit_profile.html', context)
 
 

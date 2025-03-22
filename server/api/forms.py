@@ -1,5 +1,5 @@
 from django import forms
-from .models import User, Product, Category
+from .models import User, Product, Category, FarmerProfile, CustomerProfile
 
 class UserSignupForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput)
@@ -46,3 +46,23 @@ class ProductForm(forms.ModelForm):
         if stock < 0:
             raise forms.ValidationError("Stock cannot be negative.")
         return stock
+
+class FarmerProfileForm(forms.ModelForm):
+    class Meta:
+        model = FarmerProfile
+        fields = ['address', 'city', 'state', 'pincode']
+        widgets = {
+            'address': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'city': forms.TextInput(attrs={'class': 'form-control'}),
+            'state': forms.TextInput(attrs={'class': 'form-control'}),
+            'pincode': forms.TextInput(attrs={'class': 'form-control'}),
+        }
+
+class CustomerProfileForm(forms.ModelForm):
+    class Meta:
+        model = CustomerProfile
+        fields = ['photo', 'phone_number', 'address']
+        widgets = {
+            'phone_number': forms.TextInput(attrs={'class': 'form-control'}),
+            'address': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+        }
