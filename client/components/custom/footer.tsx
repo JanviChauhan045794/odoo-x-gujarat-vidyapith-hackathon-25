@@ -1,10 +1,10 @@
 'use client'
 import { LogoLabelComp } from "@/components/custom/logo-label";
 import { LinkPreview } from "@/components/ui/link-preview";
-import { assetsLinks } from "@/lib/assets-links";
+// import { assetsLinks } from "@/lib/assets-links";
 import { pageLinks } from "@/lib/page-links";
 import { LucideCopyright } from "lucide-react";
-import Image from "next/image";
+// import Image from "next/image";
 import Link from "next/link";
 
 /**
@@ -43,16 +43,16 @@ export function FooterComp() {
                 { text: "Partners", url: pageLinks.resource.partners },
             ],
         },
-        {
-            title: "Social",
-            links: [
-                { src: assetsLinks.social.github.src, alt: assetsLinks.social.github.alt, text: "Github", url: pageLinks.social.github },
-                { src: assetsLinks.social.linkedIn.src, alt: assetsLinks.social.linkedIn.alt, text: "LinkedIn", url: pageLinks.social.linkedIn },
-                { src: assetsLinks.social.youtube.src, alt: assetsLinks.social.youtube.alt, text: "YouTube", url: pageLinks.social.youtube },
-                { src: assetsLinks.social.instagram.src, alt: assetsLinks.social.instagram.alt, text: "Instagram", url: pageLinks.social.instagram },
-                { src: assetsLinks.social.twitter.src, alt: assetsLinks.social.twitter.alt, text: "Twitter", url: pageLinks.social.twitter },
-            ],
-        },
+        // {
+        //     title: "Social",
+        //     links: [
+        //         { src: assetsLinks.social.github.src, alt: assetsLinks.social.github.alt, text: "Github", url: pageLinks.social.github },
+        //         { src: assetsLinks.social.linkedIn.src, alt: assetsLinks.social.linkedIn.alt, text: "LinkedIn", url: pageLinks.social.linkedIn },
+        //         { src: assetsLinks.social.youtube.src, alt: assetsLinks.social.youtube.alt, text: "YouTube", url: pageLinks.social.youtube },
+        //         { src: assetsLinks.social.instagram.src, alt: assetsLinks.social.instagram.alt, text: "Instagram", url: pageLinks.social.instagram },
+        //         { src: assetsLinks.social.twitter.src, alt: assetsLinks.social.twitter.alt, text: "Twitter", url: pageLinks.social.twitter },
+        //     ],
+        // },
     ]
 
     const bottomLinks = [
@@ -67,13 +67,13 @@ export function FooterComp() {
                     <div className="col-span-2 mb-8 lg:mb-0">
                         <div className="flex items-center gap-2 lg:justify-start">
                             <Link href={pageLinks.nav.home} className="flex items-center">
-                                <Image
+                                {/* <Image
                                     src={assetsLinks.fraxation_logo.src}
                                     alt={assetsLinks.fraxation_logo.alt}
                                     title={"Fraxation Logo"}
                                     width={80}
                                     height={80}
-                                />
+                                /> */}
                                 <LogoLabelComp className="text-3xl" />
                             </Link>
                         </div>
@@ -90,7 +90,7 @@ export function FooterComp() {
                                         {"src" in link ?
                                             (
                                                 <div className="flex items-center space-x-1 hover:text-white group">
-                                                    <Image src={link.src} alt={link.alt} width={20} height={20} className="bg-lime-300/50 group-hover:bg-lime-300 rounded-xs" />
+                                                    {/* <Image src={link.src} alt={link.alt} width={20} height={20} className="bg-lime-300/50 group-hover:bg-lime-300 rounded-xs" /> */}
                                                     <LinkPreview
                                                         width={300}
                                                         height={200}
