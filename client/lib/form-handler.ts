@@ -30,7 +30,7 @@ export class UtilityHandler {
         } catch (error) {
             toast.error('An error occurred: ' + (error instanceof Error ? error.message : error));
         } finally {
-            toast.dismiss(toastId); // Dismiss toast after the request is completed
+            toast.dismiss(toastId);
         }
     }
 }

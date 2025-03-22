@@ -16,17 +16,26 @@ export default function MyForm() {
         full_name: z.string().min(1).min(6).max(30),
         email: z.string(),
         password: z.string(),
+        re_password: z.string(),
         phone_number: z.string(),
         role: z.string()
     });
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
+        defaultValues: {
+            full_name: "",
+            email: "",
+            password: "",
+            re_password: "",
+            phone_number: "",
+            role: "",
+        }
     })
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit((values) => UtilityHandler.onSubmitPost('/add_user', values))} className="space-y-8 max-w-3xl mx-auto py-20">
+            <form onSubmit={form.handleSubmit((values) => UtilityHandler.onSubmitPost('/api/add_user', values))} className="space-y-8 max-w-3xl mx-auto py-20">
 
                 <FormField
                     control={form.control}
@@ -36,7 +45,7 @@ export default function MyForm() {
                             <FormLabel>Enter your full name</FormLabel>
                             <FormControl>
                                 <Input
-                                    placeholder="shadcn"
+                                    placeholder="Your Full name"
                                     type="text"
                                     {...field} />
                             </FormControl>
@@ -83,10 +92,10 @@ export default function MyForm() {
 
                 <FormField
                     control={form.control}
-                    name="password"
+                    name="re_password"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Password</FormLabel>
+                            <FormLabel>Renter Password</FormLabel>
                             <FormControl>
                                 <PasswordInput placeholder="Placeholder" {...field} />
                             </FormControl>
@@ -107,7 +116,7 @@ export default function MyForm() {
                                 <PhoneInput
                                     placeholder="Placeholder"
                                     {...field}
-                                    defaultCountry="TR"
+                                    defaultCountry="IN"
                                 />
                             </FormControl>
                             <FormDescription>Enter your phone number.</FormDescription>
