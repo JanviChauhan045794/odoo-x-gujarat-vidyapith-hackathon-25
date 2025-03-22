@@ -12,8 +12,6 @@ urlpatterns = [
     path('dashboard/admin/', views.admin_dashboard, name='admin_dashboard'),
     path('dashboard/verifier/', views.verifier_dashboard, name='verifier_dashboard'),
     path('login/', auth_views.LoginView.as_view(template_name='login.html'), name='login'),
-  
-   
-    
     path('', views.index_view, name='home'),
+    path('logout/', views.index_view, name='logout'),
 ]

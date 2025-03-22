@@ -1,10 +1,7 @@
 <div class="sidebar">
     <center>
-        {% if farmer_profile.photo %}
-            <img src="{{ farmer_profile.photo.url }}" alt="Profile Photo" class="profile-pic">
-        {% else %}
-            <img src="/media/profile_photos/default.jpg" alt="Default Profile" class="profile-pic">
-        {% endif %}
+        {% load static %}
+        <img src="{% static 'user.png' %}" alt="Default Profile" class="profile-pic">
         <h3>{{ user.full_name }}</h3>
     </center>
     <a href="#"><i class="fa fa-home"></i> Dashboard</a>
@@ -13,5 +10,5 @@
     <a href="#"><i class="fa fa-seedling"></i> Add/Edit Products</a>
     <a href="#"><i class="fa fa-shopping-cart"></i> Order Management</a>
     <a href="#"><i class="fa fa-chart-line"></i> Sales Analytics</a>
-    {% comment %} <a href="{% url 'logout' %}"><i class="fa fa-sign-out-alt"></i> Logout</a> {% endcomment %}
+    <a href="{% url 'logout' %}"><i class="fa fa-sign-out-alt"></i> Logout</a>
 </div>
