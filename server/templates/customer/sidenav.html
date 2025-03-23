@@ -1,5 +1,5 @@
 <!-- Sidebar -->
-<div class="w-64 bg-green-800 text-white h-screen fixed">
+<div class="w-64 bg-green-800 text-white h-screen fixed z-50">
     <div class="p-4">
         <div class="text-center mb-6">
             {% if customer_profile and customer_profile.photo %}
@@ -16,7 +16,11 @@
                 <i class="fas fa-home w-6"></i>
                 <span>Dashboard</span>
             </a>
-            <a href="{% url 'edit_customer_profile' %}" class="flex items-center px-4 py-2 text-white hover:bg-green-700 rounded-lg transition-colors">
+            <a href="{% url 'shop_products' %}" class="flex items-center px-4 py-2 text-white hover:bg-green-700 rounded-lg transition-colors">
+                <i class="fas fa-shopping-basket w-6"></i>
+                <span>Shop Products</span>
+            </a>
+            <a href="{% url 'customer_profile' %}" class="flex items-center px-4 py-2 text-white hover:bg-green-700 rounded-lg transition-colors">
                 <i class="fas fa-user w-6"></i>
                 <span>Profile</span>
             </a>

@@ -23,11 +23,20 @@ urlpatterns = [
     path('products/', views.product_list, name='product_list'),
     path('products/add/', views.add_product, name='add_product'),
     path('products/edit/<int:product_id>/', views.edit_product, name='edit_product'),
-    path('products/delete/<int:product_id>/', views.delete_product, name='delete_product'),
+    path('delete_product/<int:product_id>/', views.delete_product, name='delete_product'),
+    
+    # Shopping URLs
+    path('shop/', views.shop_products, name='shop_products'),
+    path('cart/add/<int:product_id>/', views.add_to_cart, name='add_to_cart'),
+    path('cart/remove/<int:item_id>/', views.remove_from_cart, name='remove_from_cart'),
+    path('checkout/', views.checkout, name='checkout'),
+    
+    # Customer Profile URLs
+    path('customer/profile/', views.customer_profile, name='customer_profile'),
+    path('customer/profile/edit/', views.edit_customer_profile, name='edit_customer_profile'),
     
     # Farmer Profile URLs
     path('farmer/profile/edit/', views.edit_farmer_profile, name='edit_farmer_profile'),
-    path('customer/profile/edit/', views.edit_customer_profile, name='edit_customer_profile'),
     path('farmer/certification/', views.certification_request, name='certification_request'),
     
     # Verifier URLs

@@ -6,8 +6,9 @@ from rest_framework import viewsets, permissions, filters, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from django_filters.rest_framework import DjangoFilterBackend
+from django.db.models import Sum, Count
 from .forms import UserSignupForm, ProductForm, FarmerProfileForm, CustomerProfileForm
-from .models import FarmerProfile, CertificationRequest, User, Product, Category, CustomerProfile
+from .models import FarmerProfile, CertificationRequest, User, Product, Category, CustomerProfile, Order, OrderItem, Payment, Review
 from .serializers import ProductSerializer, CategorySerializer
 from django.utils import timezone
 
@@ -163,8 +164,8 @@ def edit_product(request, product_id):
 
     try:
         farmer_profile = FarmerProfile.objects.get(user=request.user)
-        product = get_object_or_404(Product, id=product_id, farmer=farmer_profile)
-    except (FarmerProfile.DoesNotExist, Product.DoesNotExist):
+        product = get_object_or_404(Product, product_id=product_id, farmer=farmer_profile)
+    except FarmerProfile.DoesNotExist:
         messages.error(request, 'Product not found or you do not have permission to edit it.')
         return redirect('product_list')
 
@@ -206,10 +207,10 @@ def delete_product(request, product_id):
 
     try:
         farmer_profile = FarmerProfile.objects.get(user=request.user)
-        product = get_object_or_404(Product, id=product_id, farmer=farmer_profile)
+        product = get_object_or_404(Product, product_id=product_id, farmer=farmer_profile)
         product.delete()
         messages.success(request, 'Product deleted successfully!')
-    except (FarmerProfile.DoesNotExist, Product.DoesNotExist):
+    except FarmerProfile.DoesNotExist:
         messages.error(request, 'Product not found or you do not have permission to delete it.')
     
     return redirect('product_list')
@@ -390,5 +391,227 @@ def logout_view(request):
     logout(request)
     messages.success(request, 'You have been logged out successfully.')
     return redirect('login')
+
+@login_required
+def shop_products(request):
+    if request.user.role != 'Customer':
+        messages.error(request, 'Only customers can access the shop.')
+        return redirect('home')
+
+    # Get all products
+    products = Product.objects.all().select_related('farmer__user', 'category')
+
+    # Apply filters
+    category = request.GET.get('category')
+    sort = request.GET.get('sort', 'price')  # Default sort by price
+    min_price = request.GET.get('min_price')
+    max_price = request.GET.get('max_price')
+
+    if category:
+        products = products.filter(category_id=category)
+    
+    if min_price:
+        products = products.filter(price__gte=min_price)
+    
+    if max_price:
+        products = products.filter(price__lte=max_price)
+    
+    products = products.order_by(sort)
+
+    # Get cart items for the current user
+    cart_items = []
+    cart_total = 0
+    if request.user.is_authenticated:
+        cart_items = OrderItem.objects.filter(
+            order__customer=request.user,
+            order__order_status='Cart'
+        ).select_related('product')
+        cart_total = sum(item.product.price * item.quantity for item in cart_items)
+
+    context = {
+        'products': products,
+        'categories': Category.objects.all(),
+        'cart_items': cart_items,
+        'cart_total': cart_total,
+    }
+    return render(request, 'customer/shop_products.html', context)
+
+@login_required
+def add_to_cart(request, product_id):
+    if request.user.role != 'Customer':
+        messages.error(request, 'Only customers can add items to cart.')
+        return redirect('shop_products')
+
+    if request.method != 'POST':
+        return redirect('shop_products')
+
+    try:
+        product = Product.objects.get(product_id=product_id)
+        quantity = int(request.POST.get('quantity', 1))
+
+        if quantity <= 0:
+            messages.error(request, 'Quantity must be greater than zero.')
+            return redirect('shop_products')
+
+        if quantity > product.stock:
+            messages.error(request, 'Not enough stock available.')
+            return redirect('shop_products')
+
+        # Get or create cart (order with status 'Cart')
+        cart, created = Order.objects.get_or_create(
+            customer=request.user,
+            order_status='Cart',
+            defaults={'total_price': 0}
+        )
+
+        # Check if product already in cart
+        cart_item, created = OrderItem.objects.get_or_create(
+            order=cart,
+            product=product,
+            defaults={'quantity': quantity, 'price': product.price}
+        )
+
+        if not created:
+            cart_item.quantity += quantity
+            cart_item.save()
+
+        # Update cart total
+        cart.total_price = sum(item.price * item.quantity for item in cart.orderitem_set.all())
+        cart.save()
+
+        messages.success(request, f'{product.product_name} added to cart.')
+    except Product.DoesNotExist:
+        messages.error(request, 'Product not found.')
+    except Exception as e:
+        messages.error(request, f'Error adding to cart: {str(e)}')
+
+    return redirect('shop_products')
+
+@login_required
+def remove_from_cart(request, item_id):
+    if request.user.role != 'Customer':
+        messages.error(request, 'Only customers can modify cart.')
+        return redirect('shop_products')
+
+    if request.method != 'POST':
+        return redirect('shop_products')
+
+    try:
+        cart_item = OrderItem.objects.get(
+            id=item_id,
+            order__customer=request.user,
+            order__order_status='Cart'
+        )
+        cart = cart_item.order
+        cart_item.delete()
+
+        # Update cart total
+        cart.total_price = sum(item.price * item.quantity for item in cart.orderitem_set.all())
+        cart.save()
+
+        messages.success(request, 'Item removed from cart.')
+    except OrderItem.DoesNotExist:
+        messages.error(request, 'Item not found in cart.')
+
+    return redirect('shop_products')
+
+@login_required
+def checkout(request):
+    if request.user.role != 'Customer':
+        messages.error(request, 'Only customers can checkout.')
+        return redirect('shop_products')
+
+    try:
+        # Get customer profile
+        customer_profile = CustomerProfile.objects.get(user=request.user)
+        
+        # Get cart and items
+        cart = Order.objects.get(customer=request.user, order_status='Cart')
+        cart_items = cart.orderitem_set.all().select_related('product', 'product__farmer', 'product__farmer__user')
+
+        if not cart_items.exists():
+            messages.error(request, 'Your cart is empty.')
+            return redirect('shop_products')
+
+        if request.method == 'POST':
+            # Validate address
+            if not customer_profile.address:
+                messages.error(request, 'Please add your delivery address before checkout.')
+                return redirect('edit_customer_profile')
+
+            # Check stock availability
+            for item in cart_items:
+                if item.quantity > item.product.stock:
+                    messages.error(request, f'Sorry, {item.product.product_name} is out of stock.')
+                    return redirect('checkout')
+
+            # Process the order
+            payment_method = request.POST.get('payment_method', 'COD')
+            cart.order_status = 'Pending'
+            cart.placed_at = timezone.now()
+            cart.delivery_address = customer_profile.address
+            cart.phone_number = customer_profile.phone_number
+            cart.save()
+
+            # Create a new payment record
+            Payment.objects.create(
+                order=cart,
+                payment_method=payment_method,
+                amount=cart.total_price,
+                payment_status='Pending'
+            )
+
+            # Update product stock
+            for item in cart_items:
+                product = item.product
+                product.stock -= item.quantity
+                product.save()
+
+            messages.success(request, 'Order placed successfully! We will contact you for delivery details.')
+            return redirect('customer_dashboard')
+
+        context = {
+            'cart': cart,
+            'cart_items': cart_items,
+            'customer_profile': customer_profile,
+        }
+        return render(request, 'customer/checkout.html', context)
+
+    except CustomerProfile.DoesNotExist:
+        messages.error(request, 'Please complete your profile before checkout.')
+        return redirect('edit_customer_profile')
+    except Order.DoesNotExist:
+        messages.error(request, 'No active cart found.')
+        return redirect('shop_products')
+
+@login_required
+def customer_profile(request):
+    if request.user.role != 'Customer':
+        messages.error(request, 'Only customers can view this profile.')
+        return redirect('home')
+    
+    try:
+        customer_profile = CustomerProfile.objects.get(user=request.user)
+    except CustomerProfile.DoesNotExist:
+        customer_profile = CustomerProfile.objects.create(user=request.user)
+    
+    # Get order statistics
+    orders = Order.objects.filter(customer=request.user).exclude(order_status='Cart')
+    total_orders = orders.count()
+    total_spent = orders.aggregate(total=Sum('total_price'))['total'] or 0
+    recent_orders = orders.order_by('-placed_at')[:5]
+    
+    # Get review statistics
+    total_reviews = Review.objects.filter(customer=request.user).count()
+    
+    context = {
+        'customer_profile': customer_profile,
+        'total_orders': total_orders,
+        'total_reviews': total_reviews,
+        'total_spent': total_spent,
+        'recent_orders': recent_orders,
+    }
+    
+    return render(request, 'customer/profile.html', context)
 
 

@@ -8,12 +8,12 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body class="bg-gray-100">
-    <div class="flex h-screen">
+    <div class="flex min-h-screen">
         <!-- Sidebar -->
         {% include 'customer/sidenav.html' %}
 
         <!-- Main Content -->
-        <div class="flex-1 overflow-y-auto">
+        <div class="flex-1 ml-64">
             {% if messages %}
             <div class="fixed top-4 right-4 z-50">
                 {% for message in messages %}
@@ -24,9 +24,13 @@
             </div>
             {% endif %}
             
-            {% block content %}
-            {% endblock %}
+            <div class="p-8">
+                {% block content %}
+                {% endblock %}
+            </div>
         </div>
     </div>
+
+    {% block extra_scripts %}{% endblock %}
 </body>
 </html>

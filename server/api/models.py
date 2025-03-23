@@ -100,9 +100,38 @@ class Product(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
-        qr = qrcode.make(f"Product: {self.product_name}, Price: {self.price}")
+        # Create detailed QR code content
+        qr_content = (
+            f"Product Details:\n"
+            f"Name: {self.product_name}\n"
+            f"Category: {self.category.category_name}\n"
+            f"Price: ₹{self.price}\n"
+            f"Stock Available: {self.stock} units\n\n"
+            f"Farmer Details:\n"
+            f"Name: {self.farmer.user.full_name}\n"
+            f"Location: {self.farmer.city}, {self.farmer.state}\n"
+            f"Contact: {self.farmer.user.phone_number}\n"
+            f"Certification Status: {'Certified' if hasattr(self.farmer, 'certification_request') and self.farmer.certification_request.status == 'approved' else 'Pending'}"
+        )
+        
+        # Create QR code instance with styling
+        qr = qrcode.QRCode(
+            version=1,
+            error_correction=qrcode.constants.ERROR_CORRECT_H,
+            box_size=10,
+            border=4,
+        )
+        
+        # Add data
+        qr.add_data(qr_content)
+        qr.make(fit=True)
+
+        # Create image with custom coloring
+        qr_image = qr.make_image(fill_color="darkgreen", back_color="white")
+        
+        # Save to buffer
         buffer = BytesIO()
-        qr.save(buffer)
+        qr_image.save(buffer)
         self.qr_code.save(f'qr_{self.product_id}.png', File(buffer), save=False)
         super().save(*args, **kwargs)
 
