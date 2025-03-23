@@ -34,9 +34,12 @@ urlpatterns = [
     # Customer Profile URLs
     path('customer/profile/', views.customer_profile, name='customer_profile'),
     path('customer/profile/edit/', views.edit_customer_profile, name='edit_customer_profile'),
+    path('customer/orders/', views.customer_orders, name='customer_orders'),
     
     # Farmer Profile URLs
     path('farmer/profile/edit/', views.edit_farmer_profile, name='edit_farmer_profile'),
+    path('farmer/orders/', views.farmer_orders, name='farmer_orders'),
+    path('farmer/orders/<int:order_id>/update/', views.update_order_status, name='update_order_status'),
     path('farmer/certification/', views.certification_request, name='certification_request'),
     
     # Verifier URLs

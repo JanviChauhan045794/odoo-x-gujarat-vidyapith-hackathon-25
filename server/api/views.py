@@ -140,18 +140,13 @@ def add_product(request):
                 messages.error(request, f'Error saving product: {str(e)}')
         else:
             messages.error(request, 'Please correct the errors below.')
-            print("Form errors:", form.errors)  # Debug print
     else:
         form = ProductForm()
-    
-    # Get available categories for debugging
-    categories = Category.objects.all()
-    print("Available categories:", categories)  # Debug print
     
     context = {
         'form': form,
         'farmer': farmer_profile,
-        'categories': categories,  # Add categories to context
+        'categories': Category.objects.all(),
     }
     return render(request, 'add_product.html', context)
 
@@ -549,15 +544,12 @@ def checkout(request):
             payment_method = request.POST.get('payment_method', 'COD')
             cart.order_status = 'Pending'
             cart.placed_at = timezone.now()
-            cart.delivery_address = customer_profile.address
-            cart.phone_number = customer_profile.phone_number
             cart.save()
 
             # Create a new payment record
             Payment.objects.create(
                 order=cart,
                 payment_method=payment_method,
-                amount=cart.total_price,
                 payment_status='Pending'
             )
 
@@ -613,5 +605,130 @@ def customer_profile(request):
     }
     
     return render(request, 'customer/profile.html', context)
+
+@login_required
+def customer_orders(request):
+    if request.user.role != 'Customer':
+        messages.error(request, 'Only customers can view their orders.')
+        return redirect('home')
+    
+    # Get filter parameters
+    status = request.GET.get('status', '')
+    sort = request.GET.get('sort', '-placed_at')
+    
+    # Get all orders except cart
+    orders = Order.objects.filter(
+        customer=request.user
+    ).exclude(
+        order_status='Cart'
+    )
+    
+    # Apply status filter
+    if status:
+        orders = orders.filter(order_status=status)
+    
+    # Apply sorting
+    orders = orders.order_by(sort).select_related(
+        'payment'
+    ).prefetch_related(
+        'orderitem_set__product__farmer__user'
+    )
+
+    context = {
+        'orders': orders,
+        'current_status': status,
+        'current_sort': sort,
+    }
+    return render(request, 'customer/orders.html', context)
+
+@login_required
+def farmer_orders(request):
+    if request.user.role != 'Farmer':
+        messages.error(request, 'Only farmers can view their orders.')
+        return redirect('home')
+    
+    try:
+        farmer_profile = FarmerProfile.objects.get(user=request.user)
+        
+        # Get filter parameters
+        status = request.GET.get('status', '')
+        sort = request.GET.get('sort', '-placed_at')
+        
+        # Get all orders containing farmer's products
+        orders = Order.objects.filter(
+            orderitem__product__farmer=farmer_profile
+        ).exclude(
+            order_status='Cart'
+        ).distinct()
+        
+        # Apply status filter
+        if status:
+            orders = orders.filter(order_status=status)
+        
+        # Apply sorting
+        orders = orders.order_by(sort).select_related(
+            'customer', 'payment'
+        ).prefetch_related(
+            'orderitem_set__product'
+        )
+
+        # Calculate total earnings
+        total_earnings = sum(
+            item.price * item.quantity
+            for order in orders
+            for item in order.orderitem_set.filter(product__farmer=farmer_profile)
+        )
+
+        context = {
+            'orders': orders,
+            'current_status': status,
+            'current_sort': sort,
+            'total_earnings': total_earnings,
+        }
+        return render(request, 'farmer/orders.html', context)
+        
+    except FarmerProfile.DoesNotExist:
+        messages.error(request, 'Please complete your farmer profile first.')
+        return redirect('farmer_dashboard')
+
+@login_required
+def update_order_status(request, order_id):
+    if request.user.role != 'Farmer':
+        messages.error(request, 'Only farmers can update order status.')
+        return redirect('home')
+    
+    if request.method != 'POST':
+        return redirect('farmer_orders')
+    
+    try:
+        farmer_profile = FarmerProfile.objects.get(user=request.user)
+        order = Order.objects.filter(
+            order_id=order_id,
+            orderitem__product__farmer=farmer_profile
+        ).distinct().first()
+        
+        if not order:
+            messages.error(request, 'Order not found or you do not have permission to update it.')
+            return redirect('farmer_orders')
+        
+        new_status = request.POST.get('status')
+        if new_status in ['Shipped', 'Delivered']:
+            order.order_status = new_status
+            order.save()
+            
+            if new_status == 'Delivered':
+                # Update payment status if COD
+                if order.payment.payment_method == 'COD':
+                    order.payment.payment_status = 'Success'
+                    order.payment.save()
+            
+            messages.success(request, f'Order #{order_id} marked as {new_status}.')
+        else:
+            messages.error(request, 'Invalid order status.')
+            
+    except FarmerProfile.DoesNotExist:
+        messages.error(request, 'Farmer profile not found.')
+    
+    return redirect('farmer_orders')
 
 
