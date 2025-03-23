@@ -1,28 +1,242 @@
-{% extends 'admin/base.html' %}
+{% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
+<!-- Header with Logout -->
+<div class="bg-white shadow">
+    <div class="container mx-auto px-4">
+        <div class="flex justify-between items-center py-4">
+            <h1 class="text-2xl font-bold text-gray-800">Admin Dashboard</h1>
+            <a href="{% url 'logout' %}" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center">
+                <i class="fas fa-sign-out-alt mr-2"></i>
+                Logout
+            </a>
+        </div>
+    </div>
+</div>
 
-<h2>Admin Dashboard</h2>
-<div class="dashboard-cards">
-    <div class="card">
-        <h3>Total Users</h3>
-        <p>120</p>
+<div class="container mx-auto px-4 py-8">
+    <!-- Statistics Overview -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <!-- Total Farmers -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-green-100 text-green-600">
+                    <i class="fas fa-tractor text-2xl"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-gray-500">Total Farmers</p>
+                    <p class="text-2xl font-semibold">{{ total_farmers }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Verifiers -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-blue-100 text-blue-600">
+                    <i class="fas fa-check-circle text-2xl"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-gray-500">Total Verifiers</p>
+                    <p class="text-2xl font-semibold">{{ total_verifiers }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Customers -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-purple-100 text-purple-600">
+                    <i class="fas fa-users text-2xl"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-gray-500">Total Customers</p>
+                    <p class="text-2xl font-semibold">{{ total_customers }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Orders -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-yellow-100 text-yellow-600">
+                    <i class="fas fa-shopping-cart text-2xl"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-gray-500">Total Orders</p>
+                    <p class="text-2xl font-semibold">{{ total_orders }}</p>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="card">
-        <h3>Total Farmers</h3>
-        <p>45</p>
+
+    <!-- Certification Status -->
+    <div class="bg-white rounded-lg shadow mb-8 p-6">
+        <h2 class="text-xl font-semibold mb-4">Certification Status</h2>
+        <div class="grid grid-cols-2 gap-4">
+            <div class="border rounded-lg p-4">
+                <p class="text-gray-500">Pending Certifications</p>
+                <p class="text-2xl font-semibold text-orange-600">{{ pending_certifications }}</p>
+            </div>
+            <div class="border rounded-lg p-4">
+                <p class="text-gray-500">Approved Certifications</p>
+                <p class="text-2xl font-semibold text-green-600">{{ approved_certifications }}</p>
+            </div>
+        </div>
     </div>
-    <div class="card">
-        <h3>Pending Certificate Requests</h3>
-        <p>5</p>
+
+    <!-- User Lists -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Farmers List -->
+        <div class="bg-white rounded-lg shadow">
+            <div class="p-4 border-b">
+                <h2 class="text-xl font-semibold">Farmers</h2>
+            </div>
+            <div class="p-4">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full">
+                        <thead>
+                            <tr>
+                                <th class="px-4 py-2 text-left">Name</th>
+                                <th class="px-4 py-2 text-left">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for farmer in farmers %}
+                            <tr class="border-t">
+                                <td class="px-4 py-2">{{ farmer.full_name }}</td>
+                                <td class="px-4 py-2">
+                                    {% if farmer.farmerprofile.is_certified %}
+                                    <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">Certified</span>
+                                    {% else %}
+                                    <span class="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-800">Pending</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="2" class="px-4 py-2 text-center text-gray-500">No farmers registered</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Verifiers List -->
+        <div class="bg-white rounded-lg shadow">
+            <div class="p-4 border-b">
+                <h2 class="text-xl font-semibold">Verifiers</h2>
+            </div>
+            <div class="p-4">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full">
+                        <thead>
+                            <tr>
+                                <th class="px-4 py-2 text-left">Name</th>
+                                <th class="px-4 py-2 text-left">Email</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for verifier in verifiers %}
+                            <tr class="border-t">
+                                <td class="px-4 py-2">{{ verifier.full_name }}</td>
+                                <td class="px-4 py-2">{{ verifier.email }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="2" class="px-4 py-2 text-center text-gray-500">No verifiers registered</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Customers List -->
+        <div class="bg-white rounded-lg shadow">
+            <div class="p-4 border-b">
+                <h2 class="text-xl font-semibold">Customers</h2>
+            </div>
+            <div class="p-4">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full">
+                        <thead>
+                            <tr>
+                                <th class="px-4 py-2 text-left">Name</th>
+                                <th class="px-4 py-2 text-left">Location</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for customer in customers %}
+                            <tr class="border-t">
+                                <td class="px-4 py-2">{{ customer.full_name }}</td>
+                                <td class="px-4 py-2">
+                                    {% if customer.customer_profile.address %}
+                                    {{ customer.customer_profile.address }}
+                                    {% else %}
+                                    <span class="text-gray-400">Not provided</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="2" class="px-4 py-2 text-center text-gray-500">No customers registered</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="card">
-        <h3>Orders in Progress</h3>
-        <p>12</p>
-    </div>
-    <div class="card">
-        <h3>Total Sales</h3>
-        <p>$10,500</p>
+
+    <!-- Recent Orders -->
+    <div class="mt-8 bg-white rounded-lg shadow">
+        <div class="p-4 border-b">
+            <h2 class="text-xl font-semibold">Recent Orders</h2>
+        </div>
+        <div class="p-4">
+            <div class="overflow-x-auto">
+                <table class="min-w-full">
+                    <thead>
+                        <tr>
+                            <th class="px-4 py-2 text-left">Order ID</th>
+                            <th class="px-4 py-2 text-left">Customer</th>
+                            <th class="px-4 py-2 text-left">Status</th>
+                            <th class="px-4 py-2 text-right">Total</th>
+                            <th class="px-4 py-2 text-left">Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in recent_orders %}
+                        <tr class="border-t">
+                            <td class="px-4 py-2">#{{ order.order_id }}</td>
+                            <td class="px-4 py-2">{{ order.customer.full_name }}</td>
+                            <td class="px-4 py-2">
+                                <span class="px-2 py-1 text-xs rounded-full 
+                                    {% if order.order_status == 'Pending' %}bg-yellow-100 text-yellow-800
+                                    {% elif order.order_status == 'Shipped' %}bg-blue-100 text-blue-800
+                                    {% elif order.order_status == 'Delivered' %}bg-green-100 text-green-800
+                                    {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                    {{ order.order_status }}
+                                </span>
+                            </td>
+                            <td class="px-4 py-2 text-right">₹{{ order.total_price }}</td>
+                            <td class="px-4 py-2">{{ order.placed_at|date:"M d, Y" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="px-4 py-2 text-center text-gray-500">No recent orders</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}
