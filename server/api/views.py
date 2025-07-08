@@ -78,8 +78,38 @@ def farmer_dashboard(request):
     }
     return render(request, 'farmer/farmer_dashboard.html', context)
 
+@login_required
 def admin_dashboard(request):
-    return render(request, 'admin/admin_dashboard.html')
+    if request.user.role != 'Admin':
+        messages.error(request, 'Only administrators can access this dashboard.')
+        return redirect('home')
+    
+    # Get user statistics
+    farmers = User.objects.filter(role='Farmer').select_related('farmerprofile')
+    verifiers = User.objects.filter(role='Verifier')
+    customers = User.objects.filter(role='Customer').select_related('customer_profile')
+    
+    # Get certification statistics
+    pending_certifications = CertificationRequest.objects.filter(status='pending').count()
+    approved_certifications = CertificationRequest.objects.filter(status='approved').count()
+    
+    # Get order statistics
+    total_orders = Order.objects.exclude(order_status='Cart').count()
+    recent_orders = Order.objects.exclude(order_status='Cart').order_by('-placed_at')[:5]
+    
+    context = {
+        'farmers': farmers,
+        'verifiers': verifiers,
+        'customers': customers,
+        'total_farmers': farmers.count(),
+        'total_verifiers': verifiers.count(),
+        'total_customers': customers.count(),
+        'pending_certifications': pending_certifications,
+        'approved_certifications': approved_certifications,
+        'total_orders': total_orders,
+        'recent_orders': recent_orders,
+    }
+    return render(request, 'admin/admin_dashboard.html', context)
 
 @login_required
 def verifier_dashboard(request):
